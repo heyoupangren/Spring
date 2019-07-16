@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="car" class="com.org.cwh.spring.Car">
+        <property name="name" value="baoma"></property>
+        <property name="manufacturer" value="china"></property>
+        <property name="price" value="400000"></property>
+        <property name="shisu" value="250"></property>
+    </bean>
+
+    <bean id="pet1" class="com.org.cwh.spring.Pet">
+        <constructor-arg value="dog" index="0"></constructor-arg>
+        <constructor-arg value="mili" index="1"></constructor-arg>
+        <constructor-arg value="2" index="2"></constructor-arg>
+    </bean>
+
+    <bean id="pet2" class="com.org.cwh.spring.Pet">
+        <constructor-arg value="cat" index="0"></constructor-arg>
+        <constructor-arg value="peiqian" index="1"></constructor-arg>
+        <constructor-arg value="1" index="2"></constructor-arg>
+    </bean>
+
+    <util:list id="pet">
+        <ref bean="pet1"></ref>
+        <ref bean="pet2"></ref>
+    </util:list>
+    <!--
+        使用bean的scope属性来配置bean的作用域
+        singleton：默认值。容器初始化时创建bean实例，在整个容器的生命周期内只创建这一个bean。单例的
+        prototype：原型的。容器初始化时不创建bean实例。而在每次请求时都创建一个新的bean实例，并返回。
+    -->
+    <bean id="person" class="com.org.cwh.spring.Person" scope="singleton">
+        <property name="name" value="Tom"></property>
+        <property name="age" value="20"></property>
+        <property name="car" value="#{car}"></property>
+        <property name="pet" ref="pet">
+       <!-- <list>
+            <ref bean="pet1"></ref>
+            <ref bean="pet2"></ref>
+        </list>-->
+        </property>
+    </bean>
+
+    <!-- 导入属性文件 -->
+    <context:property-placeholder location="classpath:db.properties"></context:property-placeholder>
+    <!-- 使用外部化属性文件的属性 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="user" value="${user}"></property>
+        <property name="password" value="${password}"></property>
+        <property name="driverClass" value="${driverclass}"></property>
+        <property name="jdbcUrl" value="${jdbcurl}"></property>
+    </bean>
+
+    <bean id="persons" class="com.org.cwh.spring.Person">
+        <!-- 使用SpEL来引用其他的bean的属性-->
+        <property name="name" value="#{dataSource.user}"></property>
+        <!-- 使用SpEL赋字面量-->
+        <property name="age" value="#{20}"></property>
+        <!-- 使用SpEL来引用其他的bean-->
+        <property name="car" value="#{car}"></property>
+        <!-- 使用SpEL 引用类的静态属性 -->
+        <property name="pai" value="#{T(java.lang.Math).PI *3}"></property>
+        <!-- 在SpEL中使用运算符-->
+        <property name="info" value="#{car.price>300000?'金领':'白领'}"></property>
+        <property name="pet" value="#{pet}"></property>
+    </bean>
+</beans>
